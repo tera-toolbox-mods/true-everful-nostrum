@@ -1,0 +1,10 @@
+{
+    "disableAutoUpdate": false,
+    "options": {
+        "niceName": "TEN",
+        "settingsVersion": 1,
+        "settingsFile": "config.json",
+        "settingsMigrator": "settings_migrator.js"
+    },
+    "servers": ["https://raw.githubusercontent.com/caali-hackerman/true-everful-nostrum/master/"]
+}

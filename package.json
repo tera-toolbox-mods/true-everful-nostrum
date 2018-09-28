@@ -1,0 +1,15 @@
+{
+	"name": "true-everful-nostrum",
+	"version": "2.3.0",
+	"description": "Ensures that your Elite Everful Nostrum is up 100% of the time.",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/hackerman-caali/true-everful-nostrum.git"
+	},
+	"author": "Pinkie Pie / Caali",
+	"license": "GPL-3.0",
+	"bugs": {
+		"url": "https://github.com/hackerman-caali/true-everful-nostrum/issues"
+	},
+	"homepage": "https://github.com/hackerman-caali/true-everful-nostrum#readme"
+}
