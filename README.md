@@ -1,6 +1,3 @@
-### NOTICE REGARDING ENMASSE ENTERTAINMENT (NA) TERA
-This software in this repository does not work in combination with the NA version of TERA hosted by EME (neither PC, nor PS4/XB1 servers). It contains no intellectual property belonging to them.
-
 Fork of Pinkie Pie's TEN module. Ensures that your Elite/Tera Club Everful Nostrum is up 100% of the time.
 
 Changes:
