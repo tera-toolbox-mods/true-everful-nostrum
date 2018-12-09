@@ -1,5 +1,3 @@
-'use strict'
-
 const ITEMS_NOSTRUM = [152898, 184659, 201005, 201022, 855604, 201006, 201007, 201008], // EU, NA, RU, JP, TH, TW, ??, ??
       ITEMS_NOCTENIUM = [100451], // JP
       BUFFS_NOSTRUM = [4030, 4031, 4032, 4033],
@@ -186,12 +184,12 @@ module.exports = function TrueEverfulNostrum(mod) {
     let interval = null;
     function start() {
         stop();
-        interval = setInterval(usePremiumItems, mod.settings.interval);
+        interval = mod.setInterval(usePremiumItems, mod.settings.interval);
     }
 
     function stop() {
         if (interval) {
-            clearInterval(interval);
+            mod.clearInterval(interval);
             interval = null;
         }
     }
