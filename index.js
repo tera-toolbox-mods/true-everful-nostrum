@@ -17,7 +17,7 @@ module.exports = function TrueEverfulNostrum(mod) {
 
     // Abnormality tracking
     let abnormalities = {};
-    mod.hook('S_ABNORMALITY_BEGIN', mod.majorPatchVersion >= 75 ? 3 : 2, event => {
+    mod.hook('S_ABNORMALITY_BEGIN', 3, event => {
         if(mod.game.me.is(event.target))
             abnormalities[event.id] = Date.now() + event.duration;
     });
