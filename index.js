@@ -7,6 +7,9 @@ const ITEMS_NOSTRUM = [152898, 184659, 201005, 201022, 855604, 201006, 201007, 2
       BUFF_PHOENIX = 6007;
 
 module.exports = function TrueEverfulNostrum(mod) {
+    if(mod.proxyAuthor !== 'caali')
+        mod.warn('You are trying to use True Everful Nostrum on an unsupported version of tera-proxy. It may not work as expected, and even if it does now it may break at any point in the future!');
+
     mod.game.initialize(['me', 'contract']);
 
     // User interaction
