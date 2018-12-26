@@ -6,37 +6,43 @@ const ITEMS_NOSTRUM = [152898, 184659, 201005, 201022, 855604, 201006, 201007, 2
       BUFF_RES_INVINCIBLE = 1134,
       BUFF_PHOENIX = 6007;
 
+const SettingsUI = require('tera-mod-ui').Settings;
+
 module.exports = function TrueEverfulNostrum(mod) {
-    if(mod.proxyAuthor !== 'caali' || !global.TeraProxy)
+    if (mod.proxyAuthor !== 'caali' || !global.TeraProxy)
         mod.warn('You are trying to use True Everful Nostrum on an unsupported version of tera-proxy. It may not work as expected, and even if it does now it may break at any point in the future!');
 
     mod.game.initialize(['me', 'contract']);
 
     // User interaction
     mod.command.add('ten', () => {
-        mod.settings.enabled = !mod.settings.enabled;
-        mod.command.message((mod.settings.enabled ? 'en' : 'dis') + 'abled');
+        if (ui) {
+            ui.show();
+        } else {
+            mod.settings.enabled = !mod.settings.enabled;
+            mod.command.message((mod.settings.enabled ? 'en' : 'dis') + 'abled');
+        }
     });
 
     // Abnormality tracking
     let abnormalities = {};
     mod.hook('S_ABNORMALITY_BEGIN', 3, event => {
-        if(mod.game.me.is(event.target))
+        if (mod.game.me.is(event.target))
             abnormalities[event.id] = Date.now() + event.duration;
     });
 
     mod.hook('S_ABNORMALITY_REFRESH', 1, event => {
-        if(mod.game.me.is(event.target))
+        if (mod.game.me.is(event.target))
             abnormalities[event.id] = Date.now() + event.duration;
     });
 
     mod.hook('S_ABNORMALITY_END', 1, event => {
-        if(mod.game.me.is(event.target))
+        if (mod.game.me.is(event.target))
             delete abnormalities[event.id];
     });
 
     function abnormalityDuration(id) {
-        if(!abnormalities[id])
+        if (!abnormalities[id])
             return 0;
         return abnormalities[id] - Date.now();
     }
@@ -45,20 +51,21 @@ module.exports = function TrueEverfulNostrum(mod) {
     let inventory = null;
     let nostrum_item = null;
     let noctenium_item = null;
+    let hide_message_hook = null;
 
     mod.hook('S_PCBANGINVENTORY_DATALIST', 1, event => {
         let modified = false;
-        for(let item of event.inventory) {
-            if(ITEMS_NOSTRUM.includes(item.item)) {
+        for (let item of event.inventory) {
+            if (ITEMS_NOSTRUM.includes(item.item)) {
                 inventory = 'pcbang';
-                nostrum_item = {slot: item.slot};
+                nostrum_item = { slot: item.slot };
 
                 // Cooldowns from this packet don't seem to do anything except freeze your client briefly
                 item.cooldown = 0;
                 modified = true;
-            } else if(ITEMS_NOCTENIUM.includes(item.item)) {
+            } else if (ITEMS_NOCTENIUM.includes(item.item)) {
                 inventory = 'pcbang';
-                noctenium_item = {slot: item.slot};
+                noctenium_item = { slot: item.slot };
 
                 // Cooldowns from this packet don't seem to do anything except freeze your client briefly
                 item.cooldown = 0;
@@ -71,15 +78,15 @@ module.exports = function TrueEverfulNostrum(mod) {
     });
 
     mod.hook('S_PREMIUM_SLOT_DATALIST', 1, event => {
-        for(let item of event.inventory) {
-            if(ITEMS_NOSTRUM.includes(item.item)) {
+        for (let item of event.inventory) {
+            if (ITEMS_NOSTRUM.includes(item.item)) {
                 inventory = 'premium';
                 nostrum_item = {
                     set: event.set,
                     slot: item.slot,
                     type: item.type,
                     skill: item.skill,
-                    item: item.item,
+                    item: item.item
                 };
             } else if (ITEMS_NOCTENIUM.includes(item.item)) {
                 inventory = 'premium';
@@ -88,39 +95,47 @@ module.exports = function TrueEverfulNostrum(mod) {
                     slot: item.slot,
                     type: item.type,
                     skill: item.skill,
-                    item: item.item,
+                    item: item.item
                 };
             }
         }
     });
 
     mod.hook('S_PREMIUM_SLOT_OFF', 'raw', event => {
-        if(inventory === 'premium') {
+        if (inventory === 'premium') {
             inventory = null;
             nostrum_item = null;
             noctenium_item = null;
         }
     });
 
-    if(mod.settings.hide_message) {
-        mod.hook('S_SYSTEM_MESSAGE', 1, event => {
-            let msg = mod.parseSystemMessage(event.message);
-            if(msg && (msg.id == 'SMT_ITEM_USED' || msg.id == 'SMT_CANT_USE_ITEM_COOLTIME')) {
-                for(let item of ITEMS_NOSTRUM) {
-                    if(msg.tokens['ItemName'] === '@item:' + item)
-                        return false;
+    function hookHideMessage() {
+        if (hide_message_hook) {
+            mod.unhook(hide_message_hook);
+            hide_message_hook = null;
+        }
+
+        if (mod.settings.hide_message) {
+            hide_message_hook = mod.hook('S_SYSTEM_MESSAGE', 1, event => {
+                let msg = mod.parseSystemMessage(event.message);
+                if (msg && (msg.id === 'SMT_ITEM_USED' || msg.id === 'SMT_CANT_USE_ITEM_COOLTIME')) {
+                    for (let item of ITEMS_NOSTRUM) {
+                        if (msg.tokens['ItemName'] === '@item:' + item)
+                            return false;
+                    }
+                    for (let item of ITEMS_NOCTENIUM) {
+                        if (msg.tokens['ItemName'] === '@item:' + item)
+                            return false;
+                    }
                 }
-                for(let item of ITEMS_NOCTENIUM) {
-                    if(msg.tokens['ItemName'] === '@item:' + item)
-                        return false;
-                }
-            }
-        })
+            });
+        }
     }
 
-    function useItem(item)
-    {
-        switch(inventory) {
+    hookHideMessage();
+
+    function useItem(item) {
+        switch (inventory) {
             case 'pcbang': mod.send('C_PCBANGINVENTORY_USE_SLOT', 1, item); break;
             case 'premium': mod.send('C_PREMIUM_SLOT_USE_SLOT', 1, item); break;
         }
@@ -132,8 +147,8 @@ module.exports = function TrueEverfulNostrum(mod) {
             return;
 
         // Check if we need to use everful nostrum
-        for(let buff of BUFFS_NOSTRUM) {
-            if (abnormalityDuration(buff) > 60*1000)
+        for (let buff of BUFFS_NOSTRUM) {
+            if (abnormalityDuration(buff) > 60 * 1000)
                 return;
         }
 
@@ -155,14 +170,14 @@ module.exports = function TrueEverfulNostrum(mod) {
             return;
 
         // Check if a stronger buff is present
-        for(let buff of BUFFS_NOCTENIUM_STRONGER) {
+        for (let buff of BUFFS_NOCTENIUM_STRONGER) {
             if (abnormalityDuration(buff) > 0)
                 return;
         }
 
         // Check if we need to use noctenium
-        for(let buff of BUFFS_NOCTENIUM) {
-            if (abnormalityDuration(buff) > 60*1000)
+        for (let buff of BUFFS_NOCTENIUM) {
+            if (abnormalityDuration(buff) > 60 * 1000)
                 return;
         }
 
@@ -197,6 +212,10 @@ module.exports = function TrueEverfulNostrum(mod) {
         }
     }
 
+    function isRunning() {
+        return !!interval;
+    }
+
     mod.game.on('enter_game', () => {
         start();
     });
@@ -214,4 +233,26 @@ module.exports = function TrueEverfulNostrum(mod) {
         abnormalities = {};
         start();
     });
-}
+
+    // Settings UI
+    let ui = null;
+    if (global.TeraProxy.GUIMode) {
+        ui = new SettingsUI(mod, require('./settings_structure'), mod.settings, { height: 232 });
+        ui.on('update', settings => {
+            mod.settings = settings;
+            hookHideMessage();
+
+            if (isRunning()) {
+                stop();
+                start();
+            }
+        });
+
+        this.destructor = () => {
+            if (ui) {
+                ui.close();
+                ui = null;
+            }
+        };
+    }
+};
