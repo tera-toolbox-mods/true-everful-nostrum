@@ -9,8 +9,11 @@ const ITEMS_NOSTRUM = [152898, 184659, 201005, 201022, 855604, 201006, 201007, 2
 const SettingsUI = require('tera-mod-ui').Settings;
 
 module.exports = function TrueEverfulNostrum(mod) {
-    if (mod.proxyAuthor !== 'caali' || !global.TeraProxy)
-        mod.warn('You are trying to use True Everful Nostrum on an unsupported version of tera-proxy. It may not work as expected, and even if it does now it may break at any point in the future!');
+    if(mod.proxyAuthor !== 'caali' || !global.TeraProxy) {
+        mod.warn('You are trying to use True Everful Nostrum on an unsupported legacy version of tera-proxy.');
+        mod.warn('The module may not work as expected, and even if it works for now, it may break at any point in the future!');
+        mod.warn('It is highly recommended that you download the latest official version from the #proxy channel in https://discord.gg/dUNDDtw');
+    }
 
     mod.game.initialize(['me', 'contract']);
 
