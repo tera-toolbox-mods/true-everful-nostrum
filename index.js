@@ -15,6 +15,10 @@ module.exports = function TrueEverfulNostrum(mod) {
         mod.warn('It is highly recommended that you download the latest official version from the #proxy channel in https://discord.gg/dUNDDtw');
     }
 
+    if(mod.platform === 'classic')
+        return;
+
+
     mod.game.initialize(['me', 'contract']);
 
     // User interaction
