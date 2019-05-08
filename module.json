@@ -1,5 +1,4 @@
 {
-    "disableAutoUpdate": false,
     "name": "true-everful-nostrum",
     "author": "Caali / Pinkie Pie",
     "description": "Ensures that your Elite/Tera Club Everful Nostrum/Noctenium is up 100% of the time. Complete rewrite of Pinkie Pie's original mod.",
@@ -11,5 +10,5 @@
         "settingsFile": "config.json",
         "settingsMigrator": "settings_migrator.js"
     },
-    "servers": ["https://raw.githubusercontent.com/caali-hackerman/true-everful-nostrum/master/"]
+    "servers": ["https://raw.githubusercontent.com/tera-toolbox-mods/true-everful-nostrum/master/"]
 }
