@@ -9,7 +9,7 @@ const ITEMS_NOSTRUM = [152898, 184659, 201005, 201022, 855604, 201006, 201007, 2
 const SettingsUI = require('tera-mod-ui').Settings;
 
 module.exports = function TrueEverfulNostrum(mod) {
-    mod.game.initialize(['me', 'contract']);
+    mod.game.initialize(['me', 'me.abnormalities', 'contract']);
 
     // User interaction
     mod.command.add('ten', () => {
@@ -22,26 +22,9 @@ module.exports = function TrueEverfulNostrum(mod) {
     });
 
     // Abnormality tracking
-    let abnormalities = {};
-    mod.hook('S_ABNORMALITY_BEGIN', 3, event => {
-        if (mod.game.me.is(event.target))
-            abnormalities[event.id] = Date.now() + event.duration;
-    });
-
-    mod.hook('S_ABNORMALITY_REFRESH', 1, event => {
-        if (mod.game.me.is(event.target))
-            abnormalities[event.id] = Date.now() + event.duration;
-    });
-
-    mod.hook('S_ABNORMALITY_END', 1, event => {
-        if (mod.game.me.is(event.target))
-            delete abnormalities[event.id];
-    });
-
     function abnormalityDuration(id) {
-        if (!abnormalities[id])
-            return 0;
-        return abnormalities[id] - Date.now();
+        const abnormality = mod.game.me.abnormalities[id];
+        return abnormality ? abnormality.remaining : 0;
     }
 
     // Nostrum/noctenium usage
@@ -222,12 +205,10 @@ module.exports = function TrueEverfulNostrum(mod) {
         inventory = null;
         nostrum_item = null;
         noctenium_item = null;
-        abnormalities = {};
     });
 
     mod.game.me.on('resurrect', () => {
         // Reset interval to wait a bit until on-resurrection abnormalities (e.g. phoenix buffs) are applied to make sure we don't overwrite them
-        abnormalities = {};
         start();
     });
 
