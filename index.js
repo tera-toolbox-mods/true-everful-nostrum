@@ -11,14 +11,19 @@ const SettingsUI = require('tera-mod-ui').Settings;
 module.exports = function TrueEverfulNostrum(mod) {
     mod.game.initialize(['me', 'me.abnormalities', 'contract']);
 
-    // User interaction
-    mod.command.add('ten', () => {
-        if (ui) {
-            ui.show();
-        } else {
-            mod.settings.enabled = !mod.settings.enabled;
-            mod.command.message((mod.settings.enabled ? 'en' : 'dis') + 'abled');
-        }
+    // Load item data
+    let items_nostrum = [];
+    ITEMS_NOSTRUM.forEach(async item => {
+        const itemdata = await mod.queryData('/ItemData/Item@id=?/', [item], false, false, ['id', 'requiredLevel']);
+        if (itemdata)
+            items_nostrum.push(itemdata.attributes);
+    });
+
+    let items_noctenium = [];
+    ITEMS_NOCTENIUM.forEach(async item => {
+        const itemdata = await mod.queryData('/ItemData/Item@id=?/', [item], false, false, ['id', 'requiredLevel']);
+        if (itemdata)
+            items_noctenium.push(itemdata.attributes);
     });
 
     // Abnormality tracking
@@ -28,109 +33,131 @@ module.exports = function TrueEverfulNostrum(mod) {
     }
 
     // Nostrum/noctenium usage
-    let inventory = null;
+    let inventory = null; // TODO: remove when removing < 82 support
     let nostrum_item = null;
     let noctenium_item = null;
-    let hide_message_hook = null;
 
-    mod.hook('S_PCBANGINVENTORY_DATALIST', 1, event => {
-        let modified = false;
-        for (let item of event.inventory) {
-            if (ITEMS_NOSTRUM.includes(item.item)) {
-                inventory = 'pcbang';
-                nostrum_item = { slot: item.slot };
+    if (mod.majorPatchVersion >= 82) {
+        mod.hook('S_PREMIUM_SLOT_DATALIST', 2, event => {
+            event.sets.forEach(set => {
+                set.inventory.filter(entry => entry.type === 1).forEach(entry => {
+                    const nostrum_match = items_nostrum.find(item => item.id === entry.id);
+                    if (nostrum_match) {
+                        nostrum_item = {
+                            data: nostrum_match,
+                            packet: {
+                                set: set.id,
+                                slot: entry.slot,
+                                type: entry.type,
+                                id: entry.id
+                            }
+                        };
+                    } else {
+                        const noctenium_match = items_noctenium.find(item => item.id === entry.id);
+                        if (noctenium_match) {
+                            noctenium_item = {
+                                data: noctenium_match,
+                                packet: {
+                                    set: set.id,
+                                    slot: entry.slot,
+                                    type: entry.type,
+                                    id: entry.id
+                                }
+                            };
+                        }
+                    }
+                });
+            });
+        });
 
-                // Cooldowns from this packet don't seem to do anything except freeze your client briefly
-                item.cooldown = 0;
-                modified = true;
-            } else if (ITEMS_NOCTENIUM.includes(item.item)) {
-                inventory = 'pcbang';
-                noctenium_item = { slot: item.slot };
-
-                // Cooldowns from this packet don't seem to do anything except freeze your client briefly
-                item.cooldown = 0;
-                modified = true;
-            }
-        }
-
-        if (modified)
-            return true;
-    });
-
-    mod.hook('S_PREMIUM_SLOT_DATALIST', 1, event => {
-        for (let item of event.inventory) {
-            if (ITEMS_NOSTRUM.includes(item.item)) {
-                inventory = 'premium';
-                nostrum_item = {
-                    set: event.set,
-                    slot: item.slot,
-                    type: item.type,
-                    skill: item.skill,
-                    item: item.item
-                };
-            } else if (ITEMS_NOCTENIUM.includes(item.item)) {
-                inventory = 'premium';
-                noctenium_item = {
-                    set: event.set,
-                    slot: item.slot,
-                    type: item.type,
-                    skill: item.skill,
-                    item: item.item
-                };
-            }
-        }
-    });
-
-    mod.hook('S_PREMIUM_SLOT_OFF', 'raw', event => {
-        if (inventory === 'premium') {
-            inventory = null;
+        mod.hook('S_PREMIUM_SLOT_OFF', 'raw', () => {
             nostrum_item = null;
             noctenium_item = null;
-        }
-    });
-
-    function hookHideMessage() {
-        if (hide_message_hook) {
-            mod.unhook(hide_message_hook);
-            hide_message_hook = null;
-        }
-
-        if (mod.settings.hide_message) {
-            hide_message_hook = mod.hook('S_SYSTEM_MESSAGE', 1, event => {
-                let msg = mod.parseSystemMessage(event.message);
-                if (msg && (msg.id === 'SMT_ITEM_USED' || msg.id === 'SMT_CANT_USE_ITEM_COOLTIME')) {
-                    for (let item of ITEMS_NOSTRUM) {
-                        if (msg.tokens['ItemName'] === '@item:' + item)
-                            return false;
-                    }
-                    for (let item of ITEMS_NOCTENIUM) {
-                        if (msg.tokens['ItemName'] === '@item:' + item)
-                            return false;
+        });
+    } else {
+        mod.hook('S_PCBANGINVENTORY_DATALIST', 1, event => {
+            event.inventory.filter(entry => entry.type === 1).forEach(entry => {
+                const nostrum_match = items_nostrum.find(item => item.id === entry.item);
+                if (nostrum_match) {
+                    inventory = 'pcbang';
+                    nostrum_item = {
+                        data: nostrum_match,
+                        packet: { slot: entry.slot }
+                    };
+                } else {
+                    const noctenium_match = items_noctenium.find(item => item.id === entry.item);
+                    if (noctenium_match) {
+                        inventory = 'pcbang';
+                        noctenium_item = {
+                            data: noctenium_match,
+                            packet: { slot: entry.slot }
+                        };
                     }
                 }
             });
-        }
+        });
+
+        mod.hook('S_PREMIUM_SLOT_DATALIST', 1, event => {
+            event.inventory.filter(entry => entry.type === 1).forEach(entry => {
+                const nostrum_match = items_nostrum.find(item => item.id === entry.item);
+                if (nostrum_match) {
+                    inventory = 'premium';
+                    nostrum_item = {
+                        data: nostrum_match,
+                        packet: {
+                            set: event.set,
+                            slot: entry.slot,
+                            type: entry.type,
+                            skill: entry.skill,
+                            item: entry.item
+                        }
+                    };
+                } else {
+                    const noctenium_match = items_noctenium.find(item => item.id === entry.item);
+                    if (noctenium_match) {
+                        inventory = 'premium';
+                        noctenium_item = {
+                            data: noctenium_match,
+                            packet: {
+                                set: event.set,
+                                slot: entry.slot,
+                                type: entry.type,
+                                skill: entry.skill,
+                                item: entry.item
+                            }
+                        };
+                    }
+                }
+            });
+        });
+
+        mod.hook('S_PREMIUM_SLOT_OFF', 'raw', () => {
+            if (inventory === 'premium') {
+                inventory = null;
+                nostrum_item = null;
+                noctenium_item = null;
+            }
+        });
     }
 
-    hookHideMessage();
-
     function useItem(item) {
-        switch (inventory) {
-            case 'pcbang': mod.send('C_PCBANGINVENTORY_USE_SLOT', 1, item); break;
-            case 'premium': mod.send('C_PREMIUM_SLOT_USE_SLOT', 1, item); break;
+        if (!item || mod.game.me.level < item.data.requiredLevel)
+            return;
+
+        if (mod.majorPatchVersion >= 82) {
+            mod.send('C_USE_PREMIUM_SLOT', 1, item.packet);
+        } else {
+            switch (inventory) {
+                case 'pcbang': mod.send('C_PCBANGINVENTORY_USE_SLOT', 1, item.packet); break;
+                case 'premium': mod.send('C_PREMIUM_SLOT_USE_SLOT', 1, item.packet); break;
+            }
         }
     }
 
     function useNostrum() {
-        // Check if we have an everful nostrum
-        if (!nostrum_item)
-            return;
-
         // Check if we need to use everful nostrum
-        for (let buff of BUFFS_NOSTRUM) {
-            if (abnormalityDuration(buff) > 60 * 1000)
-                return;
-        }
+        if (BUFFS_NOSTRUM.some(buff => abnormalityDuration(buff) > 60 * 1000))
+            return;
 
         // Check if we want to use everful nostrum
         if ((mod.settings.keep_resurrection_invincibility && abnormalityDuration(BUFF_RES_INVINCIBLE) > 0) || abnormalityDuration(BUFF_PHOENIX) > 0)
@@ -141,25 +168,13 @@ module.exports = function TrueEverfulNostrum(mod) {
     }
 
     function useNoctenium() {
-        // Check if we have a premium noctenium
-        if (!noctenium_item)
-            return;
-
-        // Check if we have enough level
-        if (mod.game.me.level < 30)
-            return;
-
         // Check if a stronger buff is present
-        for (let buff of BUFFS_NOCTENIUM_STRONGER) {
-            if (abnormalityDuration(buff) > 0)
-                return;
-        }
+        if (BUFFS_NOCTENIUM_STRONGER.some(buff => abnormalityDuration(buff) > 0))
+            return;
 
         // Check if we need to use noctenium
-        for (let buff of BUFFS_NOCTENIUM) {
-            if (abnormalityDuration(buff) > 60 * 1000)
-                return;
-        }
+        if (BUFFS_NOCTENIUM.some(buff => abnormalityDuration(buff) > 60 * 1000))
+            return;
 
         // Use it!
         useItem(noctenium_item);
@@ -177,6 +192,28 @@ module.exports = function TrueEverfulNostrum(mod) {
         useNostrum();
         useNoctenium();
     }
+
+    // Hook that hides the 'item used' message
+    let hide_message_hook = null;
+
+    function hookHideMessage() {
+        if (hide_message_hook) {
+            mod.unhook(hide_message_hook);
+            hide_message_hook = null;
+        }
+
+        if (mod.settings.hide_message) {
+            hide_message_hook = mod.hook('S_SYSTEM_MESSAGE', 1, event => {
+                const msg = mod.parseSystemMessage(event.message);
+                if (msg && (msg.id === 'SMT_ITEM_USED' || msg.id === 'SMT_CANT_USE_ITEM_COOLTIME')) {
+                    if (items_nostrum.some(item => msg.tokens.ItemName === `@item:${item.id}`) || items_noctenium.some(item => msg.tokens.ItemName === `@item:${item.id}`))
+                        return false;
+                }
+            });
+        }
+    }
+
+    hookHideMessage();
 
     // Main
     let interval = null;
@@ -212,7 +249,16 @@ module.exports = function TrueEverfulNostrum(mod) {
         start();
     });
 
-    // Settings UI
+    // User interaction & settings UI
+    mod.command.add('ten', () => {
+        if (ui) {
+            ui.show();
+        } else {
+            mod.settings.enabled = !mod.settings.enabled;
+            mod.command.message(mod.settings.enabled ? 'enabled' : 'disabled');
+        }
+    });
+
     let ui = null;
     if (global.TeraProxy.GUIMode) {
         ui = new SettingsUI(mod, require('./settings_structure'), mod.settings, { height: 232 });
