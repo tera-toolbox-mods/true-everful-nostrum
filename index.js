@@ -38,6 +38,7 @@ module.exports = function TrueEverfulNostrum(mod) {
     let noctenium_item = null;
 
     if (mod.majorPatchVersion >= 82) {
+        inventory = 'premium'; // TODO: remove when removing < 82 support
         mod.hook('S_PREMIUM_SLOT_DATALIST', 2, event => {
             event.sets.forEach(set => {
                 set.inventory.filter(entry => entry.type === 1).forEach(entry => {
