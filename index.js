@@ -38,12 +38,12 @@ module.exports = function TrueEverfulNostrum(mod) {
     let noctenium_item = null;
 
     if (mod.majorPatchVersion >= 82) {
-        inventory = 'premium'; // TODO: remove when removing < 82 support
         mod.hook('S_PREMIUM_SLOT_DATALIST', 2, event => {
             event.sets.forEach(set => {
                 set.inventory.filter(entry => entry.type === 1).forEach(entry => {
                     const nostrum_match = items_nostrum.find(item => item.id === entry.id);
                     if (nostrum_match) {
+                        inventory = 'premium'; // TODO: remove when removing < 82 support
                         nostrum_item = {
                             data: nostrum_match,
                             packet: {
@@ -56,6 +56,7 @@ module.exports = function TrueEverfulNostrum(mod) {
                     } else {
                         const noctenium_match = items_noctenium.find(item => item.id === entry.id);
                         if (noctenium_match) {
+                            inventory = 'premium'; // TODO: remove when removing < 82 support
                             noctenium_item = {
                                 data: noctenium_match,
                                 packet: {
