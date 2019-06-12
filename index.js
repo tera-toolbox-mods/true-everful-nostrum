@@ -33,19 +33,28 @@ module.exports = function TrueEverfulNostrum(mod) {
     }
 
     // Nostrum/noctenium usage
-    let inventory = null; // TODO: remove when removing < 82 support
     let nostrum_item = null;
     let noctenium_item = null;
 
-    if (mod.majorPatchVersion >= 82) {
-        mod.hook('S_PREMIUM_SLOT_DATALIST', 2, event => {
-            event.sets.forEach(set => {
-                set.inventory.filter(entry => entry.type === 1).forEach(entry => {
-                    const nostrum_match = items_nostrum.find(item => item.id === entry.id);
-                    if (nostrum_match) {
-                        inventory = 'premium'; // TODO: remove when removing < 82 support
-                        nostrum_item = {
-                            data: nostrum_match,
+    mod.hook('S_PREMIUM_SLOT_DATALIST', 2, event => {
+        event.sets.forEach(set => {
+            set.inventory.filter(entry => entry.type === 1).forEach(entry => {
+                const nostrum_match = items_nostrum.find(item => item.id === entry.id);
+                if (nostrum_match) {
+                    nostrum_item = {
+                        data: nostrum_match,
+                        packet: {
+                            set: set.id,
+                            slot: entry.slot,
+                            type: entry.type,
+                            id: entry.id
+                        }
+                    };
+                } else {
+                    const noctenium_match = items_noctenium.find(item => item.id === entry.id);
+                    if (noctenium_match) {
+                        noctenium_item = {
+                            data: noctenium_match,
                             packet: {
                                 set: set.id,
                                 slot: entry.slot,
@@ -53,107 +62,22 @@ module.exports = function TrueEverfulNostrum(mod) {
                                 id: entry.id
                             }
                         };
-                    } else {
-                        const noctenium_match = items_noctenium.find(item => item.id === entry.id);
-                        if (noctenium_match) {
-                            inventory = 'premium'; // TODO: remove when removing < 82 support
-                            noctenium_item = {
-                                data: noctenium_match,
-                                packet: {
-                                    set: set.id,
-                                    slot: entry.slot,
-                                    type: entry.type,
-                                    id: entry.id
-                                }
-                            };
-                        }
-                    }
-                });
-            });
-        });
-
-        mod.hook('S_PREMIUM_SLOT_OFF', 'raw', () => {
-            nostrum_item = null;
-            noctenium_item = null;
-        });
-    } else {
-        mod.hook('S_PCBANGINVENTORY_DATALIST', 1, event => {
-            event.inventory.filter(entry => entry.type === 1).forEach(entry => {
-                const nostrum_match = items_nostrum.find(item => item.id === entry.item);
-                if (nostrum_match) {
-                    inventory = 'pcbang';
-                    nostrum_item = {
-                        data: nostrum_match,
-                        packet: { slot: entry.slot }
-                    };
-                } else {
-                    const noctenium_match = items_noctenium.find(item => item.id === entry.item);
-                    if (noctenium_match) {
-                        inventory = 'pcbang';
-                        noctenium_item = {
-                            data: noctenium_match,
-                            packet: { slot: entry.slot }
-                        };
                     }
                 }
             });
         });
+    });
 
-        mod.hook('S_PREMIUM_SLOT_DATALIST', 1, event => {
-            event.inventory.filter(entry => entry.type === 1).forEach(entry => {
-                const nostrum_match = items_nostrum.find(item => item.id === entry.item);
-                if (nostrum_match) {
-                    inventory = 'premium';
-                    nostrum_item = {
-                        data: nostrum_match,
-                        packet: {
-                            set: event.set,
-                            slot: entry.slot,
-                            type: entry.type,
-                            skill: entry.skill,
-                            item: entry.item
-                        }
-                    };
-                } else {
-                    const noctenium_match = items_noctenium.find(item => item.id === entry.item);
-                    if (noctenium_match) {
-                        inventory = 'premium';
-                        noctenium_item = {
-                            data: noctenium_match,
-                            packet: {
-                                set: event.set,
-                                slot: entry.slot,
-                                type: entry.type,
-                                skill: entry.skill,
-                                item: entry.item
-                            }
-                        };
-                    }
-                }
-            });
-        });
-
-        mod.hook('S_PREMIUM_SLOT_OFF', 'raw', () => {
-            if (inventory === 'premium') {
-                inventory = null;
-                nostrum_item = null;
-                noctenium_item = null;
-            }
-        });
-    }
+    mod.hook('S_PREMIUM_SLOT_OFF', 'raw', () => {
+        nostrum_item = null;
+        noctenium_item = null;
+    });
 
     function useItem(item) {
         if (!item || mod.game.me.level < item.data.requiredLevel)
             return;
 
-        if (mod.majorPatchVersion >= 82) {
-            mod.send('C_USE_PREMIUM_SLOT', 1, item.packet);
-        } else {
-            switch (inventory) {
-                case 'pcbang': mod.send('C_PCBANGINVENTORY_USE_SLOT', 1, item.packet); break;
-                case 'premium': mod.send('C_PREMIUM_SLOT_USE_SLOT', 1, item.packet); break;
-            }
-        }
+        mod.send('C_USE_PREMIUM_SLOT', 1, item.packet);
     }
 
     function useNostrum() {
@@ -184,7 +108,7 @@ module.exports = function TrueEverfulNostrum(mod) {
 
     function usePremiumItems() {
         // Check if enabled and premium items available
-        if (!mod.settings.enabled || !inventory)
+        if (!mod.settings.enabled)
             return;
 
         // Check if we can use premium items right now
@@ -241,7 +165,6 @@ module.exports = function TrueEverfulNostrum(mod) {
 
     mod.game.on('leave_game', () => {
         stop();
-        inventory = null;
         nostrum_item = null;
         noctenium_item = null;
     });
