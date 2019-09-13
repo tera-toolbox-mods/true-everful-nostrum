@@ -68,7 +68,7 @@ module.exports = function TrueEverfulNostrum(mod) {
         });
     });
 
-    mod.hook('S_PREMIUM_SLOT_OFF', 'raw', () => {
+    mod.hook('S_PREMIUM_SLOT_OFF', 'event', () => {
         nostrum_item = null;
         noctenium_item = null;
     });
