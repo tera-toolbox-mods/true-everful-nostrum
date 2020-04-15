@@ -175,12 +175,22 @@ module.exports = function TrueEverfulNostrum(mod) {
     });
 
     // User interaction & settings UI
-    mod.command.add('ten', () => {
-        if (ui) {
-            ui.show();
-        } else {
-            mod.settings.enabled = !mod.settings.enabled;
-            mod.command.message(mod.settings.enabled ? 'enabled' : 'disabled');
+    mod.command.add('ten', {
+        $default() {
+            if (ui) {
+                ui.show();
+            } else {
+                mod.settings.enabled = !mod.settings.enabled;
+                mod.command.message(mod.settings.enabled ? 'enabled' : 'disabled');
+            }
+        },
+        on() {
+            mod.settings.enabled = true;
+            mod.command.message('enabled');
+        },
+        off() {
+            mod.settings.enabled = false;
+            mod.command.message('disabled');
         }
     });
 
