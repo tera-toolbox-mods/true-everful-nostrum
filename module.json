@@ -1,10 +1,10 @@
 {
     "name": "true-everful-nostrum",
     "author": "Caali",
-    "description": "Ensures that your Elite/Tera Club Everful Nostrum/Noctenium is up 100% of the time. Complete rewrite of Pinkie Pie's original mod.",
+    "description": "Ensures that your Elite/Tera Club Everful Nostrum/Noctenium is up 100% of the time.",
     "version": "2.1",
     "options": {
-        "niceName": "TEN",
+        "cliName": "TEN",
         "guiName": "True Everful Nostrum",
         "settingsVersion": 1,
         "settingsFile": "config.json",

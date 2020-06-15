@@ -8,23 +8,21 @@ const ITEMS_NOSTRUM = [152898, 184659, 201005, 201022, 855604, 201006, 201007, 2
 
 const SettingsUI = require('tera-mod-ui').Settings;
 
-module.exports = function TrueEverfulNostrum(mod) {
+function ClientMod(mod) {
+    this.nostrum = [];
+    this.noctenium = [];
+
+    mod.clientInterface.once('ready', async () => {
+        this.nostrum = (await mod.queryData('/ItemData/Item@id=?/', [ITEMS_NOSTRUM], true, false, ['id', 'requiredLevel'])).map(result => result.attributes);
+        this.noctenium = (await mod.queryData('/ItemData/Item@id=?/', [ITEMS_NOCTENIUM], true, false, ['id', 'requiredLevel'])).map(result => result.attributes);
+    });
+}
+
+function NetworkMod(mod) {
     mod.game.initialize(['me', 'me.abnormalities', 'contract']);
 
     // Load item data
-    let items_nostrum = [];
-    ITEMS_NOSTRUM.forEach(async item => {
-        const itemdata = await mod.queryData('/ItemData/Item@id=?/', [item], false, false, ['id', 'requiredLevel']);
-        if (itemdata)
-            items_nostrum.push(itemdata.attributes);
-    });
-
-    let items_noctenium = [];
-    ITEMS_NOCTENIUM.forEach(async item => {
-        const itemdata = await mod.queryData('/ItemData/Item@id=?/', [item], false, false, ['id', 'requiredLevel']);
-        if (itemdata)
-            items_noctenium.push(itemdata.attributes);
-    });
+    const { nostrum, noctenium } = mod.clientMod;
 
     // Abnormality tracking
     function abnormalityDuration(id) {
@@ -39,7 +37,7 @@ module.exports = function TrueEverfulNostrum(mod) {
     mod.hook('S_PREMIUM_SLOT_DATALIST', 2, event => {
         event.sets.forEach(set => {
             set.inventory.filter(entry => entry.type === 1).forEach(entry => {
-                const nostrum_match = items_nostrum.find(item => item.id === entry.id);
+                const nostrum_match = nostrum.find(item => item.id === entry.id);
                 if (nostrum_match) {
                     nostrum_item = {
                         data: nostrum_match,
@@ -51,7 +49,7 @@ module.exports = function TrueEverfulNostrum(mod) {
                         }
                     };
                 } else {
-                    const noctenium_match = items_noctenium.find(item => item.id === entry.id);
+                    const noctenium_match = noctenium.find(item => item.id === entry.id);
                     if (noctenium_match) {
                         noctenium_item = {
                             data: noctenium_match,
@@ -132,7 +130,7 @@ module.exports = function TrueEverfulNostrum(mod) {
             hide_message_hook = mod.hook('S_SYSTEM_MESSAGE', 1, event => {
                 const msg = mod.parseSystemMessage(event.message);
                 if (msg && (msg.id === 'SMT_ITEM_USED' || msg.id === 'SMT_CANT_USE_ITEM_COOLTIME')) {
-                    if (items_nostrum.some(item => msg.tokens.ItemName === `@item:${item.id}`) || items_noctenium.some(item => msg.tokens.ItemName === `@item:${item.id}`))
+                    if (nostrum.some(item => msg.tokens.ItemName === `@item:${item.id}`) || noctenium.some(item => msg.tokens.ItemName === `@item:${item.id}`))
                         return false;
                 }
             });
@@ -215,3 +213,5 @@ module.exports = function TrueEverfulNostrum(mod) {
         };
     }
 };
+
+module.exports = { ClientMod, NetworkMod };
