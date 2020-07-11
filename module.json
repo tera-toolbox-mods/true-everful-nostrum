@@ -6,7 +6,7 @@
     "options": {
         "cliName": "TEN",
         "guiName": "True Everful Nostrum",
-        "settingsVersion": 1,
+        "settingsVersion": 2,
         "settingsFile": "config.json",
         "settingsMigrator": "settings_migrator.js"
     },

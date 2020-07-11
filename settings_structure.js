@@ -20,6 +20,11 @@ module.exports = [
         "type": "bool"
     },
     {
+        "key": "dungeon_only",
+        "name": "Active only in dungeons",
+        "type": "bool"
+    },
+    {
         "key": "interval",
         "name": "Active nostrum check interval",
         "type": "range",

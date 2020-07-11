@@ -1,9 +1,9 @@
 {
     "files": {
-        "module.json": "ce065b79239586e790503e692697f2d6d582d5739fabb568512f94e5f693f83c",
-        "index.js": "c0169aec15309de17ed1629dcbc2a86b4279cc5da63c203de88171492740ea73",
-        "settings_migrator.js": "5b51c1c1721f0221efd754741a8e9105d67eec79f3d444b60a247bb13090ee9c",
-        "settings_structure.js": "e1825b0f2f2d42c41e885d0a28d69763c22675e2097d6e5f3591ab9d66471c37"
+        "module.json": "845df0e84a7a35f5cf7cf71896c23ee2299056bd65f210bbbb9bb15d4cf4c224",
+        "index.js": "223065c4d1aa43759433b4cf5f355309404b9d50925b8c21e5197476de926bca",
+        "settings_migrator.js": "d0159dc44598710f36e44cd74c5bd6c85c2953f423257cf1159ea97fdf6db1b4",
+        "settings_structure.js": "0af468b634bcda16c629abc2054b5dafd04b2c0329f3c4535dcbe560b5c4216d"
     },
     "defs": {
         "S_SYSTEM_MESSAGE": 1,
