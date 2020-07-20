@@ -25,6 +25,11 @@ module.exports = [
         "type": "bool"
     },
     {
+        "key": "civil_unrest",
+        "name": "Active in Civil Unrest",
+        "type": "bool"
+    },
+    {
         "key": "interval",
         "name": "Active nostrum check interval",
         "type": "range",

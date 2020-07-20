@@ -2,11 +2,11 @@
     "name": "true-everful-nostrum",
     "author": "Caali",
     "description": "Ensures that your Elite/Tera Club Everful Nostrum/Noctenium is up 100% of the time.",
-    "version": "2.1",
+    "version": "2.2",
     "options": {
         "cliName": "TEN",
         "guiName": "True Everful Nostrum",
-        "settingsVersion": 2,
+        "settingsVersion": 3,
         "settingsFile": "config.json",
         "settingsMigrator": "settings_migrator.js"
     },

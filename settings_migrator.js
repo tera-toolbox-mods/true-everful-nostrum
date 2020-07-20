@@ -6,6 +6,7 @@ const DefaultSettings = {
     "hide_message": true,
     "keep_resurrection_invincibility": false,
     "dungeon_only": false,
+    "civil_unrest": false,
     "interval": 1000,
 }
 
@@ -30,6 +31,9 @@ module.exports = function MigrateSettings(from_ver, to_ver, settings) {
         switch (to_ver) {
             case 2:
                 settings.dungeon_only = false;
+                break;
+            case 3:
+                settings.civil_unrest = false;
                 break;
         }
 

@@ -106,7 +106,7 @@ function NetworkMod(mod) {
 
     function usePremiumItems() {
         // Check if enabled and premium items available
-        if (!mod.settings.enabled || (mod.settings.dungeon_only && !mod.game.me.inDungeon))
+        if (!mod.settings.enabled || (mod.settings.dungeon_only && !mod.game.me.inDungeon) || (!mod.settings.civil_unrest && mod.game.me.inCivilUnrest))
             return;
 
         // Check if we can use premium items right now
