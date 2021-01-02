@@ -112,7 +112,7 @@ function NetworkMod(mod) {
         // Check if we can use premium items right now
         if (!mod.game.isIngame || mod.game.isInLoadingScreen || !mod.game.me.alive || mod.game.me.mounted || mod.game.me.inBattleground)
             return;
-
+        if(mod.game.contract.active) return;
         useNostrum();
         useNoctenium();
     }
