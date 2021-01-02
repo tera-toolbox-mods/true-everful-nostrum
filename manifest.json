@@ -1,14 +1,10 @@
 {
-    "files": {
-        "module.json": "295517b013acf466b6806935d3041d2ebd261a4a19aac3f4591523c97b8b4919",
-        "index.js": "fd71669022aff27cb80ffcda2d7242eb19baf03f21c59d371b12e8d943907bbf",
-        "settings_migrator.js": "c10253bab772fe48794d800b01f573654d1261a26cf872cddea1a66994e249a8",
-        "settings_structure.js": "4d2ea32b6c61e109d1ee2167a365330ce5ab5d4cb826aec94c5c123eb5dea503"
-    },
-    "defs": {
-        "S_SYSTEM_MESSAGE": 1,
-        "S_PREMIUM_SLOT_DATALIST": 2,
-        "S_PREMIUM_SLOT_OFF": "raw",
-        "C_USE_PREMIUM_SLOT": 1
-    }
+	"files": {
+		"module.json": "295517b013acf466b6806935d3041d2ebd261a4a19aac3f4591523c97b8b4919",
+		"index.js": "eb671b8d4815ccd4297b8aceab97d21124aa281d43f66f5310d55415cb622c52",
+		"settings_migrator.js": "c10253bab772fe48794d800b01f573654d1261a26cf872cddea1a66994e249a8",
+		"settings_structure.js": "4d2ea32b6c61e109d1ee2167a365330ce5ab5d4cb826aec94c5c123eb5dea503",
+		"LICENSE": "589ed823e9a84c56feb95ac58e7cf384626b9cbf4fda2a907bc36e103de1bad2",
+		"README.md": "0b62f626da52412bc9d9e500615028a463b6566c6d8f773ceb855802883b434f"
+	}
 }
