@@ -27,7 +27,7 @@ function NetworkMod(mod) {
     // Abnormality tracking
     function abnormalityDuration(id) {
         const abnormality = mod.game.me.abnormalities[id];
-        return abnormality ? abnormality.remaining : 0;
+        return abnormality ? abnormality.remaining : 0n;
     }
 
     // Nostrum/noctenium usage
@@ -80,11 +80,11 @@ function NetworkMod(mod) {
 
     function useNostrum() {
         // Check if we need to use everful nostrum
-        if (BUFFS_NOSTRUM.some(buff => abnormalityDuration(buff) > 60 * 1000))
+        if (BUFFS_NOSTRUM.some(buff => abnormalityDuration(buff) > BigInt(60 * 1000)))
             return;
 
         // Check if we want to use everful nostrum
-        if ((mod.settings.keep_resurrection_invincibility && abnormalityDuration(BUFF_RES_INVINCIBLE) > 0) || abnormalityDuration(BUFF_PHOENIX) > 0)
+        if ((mod.settings.keep_resurrection_invincibility && abnormalityDuration(BUFF_RES_INVINCIBLE) > 0n) || abnormalityDuration(BUFF_PHOENIX) > 0n)
             return;
 
         // Use it!
@@ -93,11 +93,11 @@ function NetworkMod(mod) {
 
     function useNoctenium() {
         // Check if a stronger buff is present
-        if (BUFFS_NOCTENIUM_STRONGER.some(buff => abnormalityDuration(buff) > 0))
+        if (BUFFS_NOCTENIUM_STRONGER.some(buff => abnormalityDuration(buff) > 0n))
             return;
 
         // Check if we need to use noctenium
-        if (BUFFS_NOCTENIUM.some(buff => abnormalityDuration(buff) > 60 * 1000))
+        if (BUFFS_NOCTENIUM.some(buff => abnormalityDuration(buff) > BigInt(60 * 1000)))
             return;
 
         // Use it!
