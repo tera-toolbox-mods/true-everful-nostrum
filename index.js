@@ -1,6 +1,10 @@
 const ITEMS_NOSTRUM = [152898, 184659, 201005, 201022, 855604, 201006, 201007, 201008], // EU, NA, RU, JP, TH, TW, ??, ??
       ITEMS_NOCTENIUM = [100451], // JP
-      BUFFS_NOSTRUM = [4030, 4031, 4032, 4033],
+      BUFFS_NOSTRUM = [
+        4020, 4021, 4024, 4025, //Prime Battle Solution, (Guide)
+        4030, 4031, 4040,       //Everful Nostrum
+        4041, 4042, 4043,       //Multi-Nostrum
+        6090, 6091, 6092],      //Blessing of Wisdom
       BUFFS_NOCTENIUM = [5010009],
       BUFFS_NOCTENIUM_STRONGER = [920, 921, 922],
       BUFF_RES_INVINCIBLE = 1134,
